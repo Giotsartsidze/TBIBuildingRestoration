@@ -65,7 +65,7 @@
           </div>
           <div class="service-content">
             <h3>{{ service.title }}</h3>
-            <p>{{ service.description }}</p>
+            <p>{{ truncateText(service.description, 15) }}</p>
             <a href="#" class="read-more" @click.prevent="openServiceModal(index)">Learn More</a>
           </div>
         </div>
@@ -414,6 +414,13 @@ export default {
   },
 
   methods: {
+    truncateText(text, wordCount) {
+      const words = text.split(' ');
+      if (words.length > wordCount) {
+        return words.slice(0, wordCount).join(' ') + '...';
+      }
+      return text;
+    },
     // Mobile navigation toggle
     toggleMobileNav() {
       this.mobileNavActive = !this.mobileNavActive;
