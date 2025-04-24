@@ -115,31 +115,6 @@
     </div>
   </div>
 
-  <!-- Projects Section -->
-  <section class="projects" id="projects">
-    <div class="container">
-      <div class="section-title">
-        <h2>OUR PROJECTS</h2>
-        <p>Showcasing our quality workmanship and attention to detail</p>
-      </div>
-      <div class="projects-slider" @mouseenter="pauseProjectSlider" @mouseleave="resumeProjectSlider">
-        <div v-for="(project, index) in projects" :key="index" class="project-slide" :class="{ active: currentProjectSlide === index }">
-          <div class="project-image">
-            <img :src="project.image" :alt="project.title">
-          </div>
-          <div class="project-info">
-            <h3>{{ project.title }}</h3>
-            <p>{{ project.description }}</p>
-          </div>
-        </div>
-
-        <div class="slider-controls">
-          <button @click="prevProjectSlide"><i class="fas fa-chevron-left"></i></button>
-          <button @click="nextProjectSlide"><i class="fas fa-chevron-right"></i></button>
-        </div>
-      </div>
-    </div>
-  </section>
 
   <!-- Testimonials Section -->
   <section class="testimonials">
@@ -258,9 +233,7 @@ export default {
     return {
       mobileNavActive: false,
       activeSection: 'home',
-      currentProjectSlide: 0,
       currentTestimonialSlide: 0,
-      projectSlideInterval: null,
       testimonialSlideInterval: null,
       showScrollTop: true,
       formData: {
@@ -276,7 +249,6 @@ export default {
         { href: "#home", text: "Home", id: "home" },
         { href: "#about", text: "About", id: "about" },
         { href: "#services", text: "Services", id: "services" },
-        { href: "#projects", text: "Projects", id: "projects" },
         { href: "#contact", text: "Contact", id: "contact" }
       ],
       showServiceModal: false,
@@ -346,25 +318,6 @@ export default {
             './images/service5/service4.jpg',
           ]
         },
-      ],
-
-      // Projects data
-      projects: [
-        {
-          title: "Balcony Waterproofing",
-          description: "This commercial building required comprehensive balcony waterproofing with membrane application and terrace finishing with patio slabs for durability and aesthetics.",
-          image: './images/service3/service6.jpg'
-        },
-        {
-          title: "Roof Waterproofing",
-          description: "Hot rubber waterproofing application on a commercial building roof, providing long-lasting protection against water infiltration and weather damage.",
-          image: './images/service1/service.jpg'
-        },
-        {
-          title: "Basement Waterproofing",
-          description: "Complete basement waterproofing with membrane application to protect this industrial facility from moisture and water damage.",
-          image: './images/service2/service2.jpg'
-        }
       ],
 
       // Testimonials data
@@ -438,7 +391,6 @@ export default {
 
   mounted() {
     // Start the sliders
-    this.startProjectSlider();
     this.startTestimonialSlider();
 
     // Add scroll event listener for scroll to top button
@@ -453,7 +405,6 @@ export default {
 
   beforeUnmount() {
     // Clear intervals when component is destroyed
-    this.clearProjectInterval();
     this.clearTestimonialInterval();
 
     // Remove scroll event listener
@@ -486,35 +437,6 @@ export default {
           this.mobileNavActive = false;
         }
       }
-    },
-
-    // Projects slider functions
-    startProjectSlider() {
-      this.projectSlideInterval = setInterval(() => {
-        this.nextProjectSlide();
-      }, 5000);
-    },
-
-    clearProjectInterval() {
-      if (this.projectSlideInterval) {
-        clearInterval(this.projectSlideInterval);
-      }
-    },
-
-    pauseProjectSlider() {
-      this.clearProjectInterval();
-    },
-
-    resumeProjectSlider() {
-      this.startProjectSlider();
-    },
-
-    nextProjectSlide() {
-      this.currentProjectSlide = (this.currentProjectSlide + 1) % this.projects.length;
-    },
-
-    prevProjectSlide() {
-      this.currentProjectSlide = (this.currentProjectSlide - 1 + this.projects.length) % this.projects.length;
     },
 
     // Testimonials slider functions
@@ -676,7 +598,8 @@ header {
 
 .logo img {
   height: 60px;
-  width: 100%;
+  width: 350px;
+  object-fit: cover;
 }
 
 ul {
@@ -685,7 +608,7 @@ ul {
 }
 
 nav ul li {
-  margin-left: 25px;
+  margin-left: 75px;
 }
 
 nav ul li a {
