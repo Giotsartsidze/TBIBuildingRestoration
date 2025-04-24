@@ -45,7 +45,7 @@
           <p>With over 100+ happy clients, our goal is to continue providing exceptional waterproofing solutions that stand the test of time.</p>
         </div>
         <div class="about-image">
-          <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRvseoy0xVFeKqCvwmK_kvYf_nP56NU8m6OqQ&s" alt="TBI Building Restoration Team at Work">
+          <img src="/images/service2/service1.jpg" alt="TBI Building Restoration Team at Work">
         </div>
       </div>
     </div>
@@ -353,7 +353,7 @@ export default {
         {
           title: "Balcony Waterproofing",
           description: "This commercial building required comprehensive balcony waterproofing with membrane application and terrace finishing with patio slabs for durability and aesthetics.",
-          image: './images/service3/service4.jpg'
+          image: './images/service3/service6.jpg'
         },
         {
           title: "Roof Waterproofing",
@@ -1069,7 +1069,7 @@ nav ul li a.active {
 .project-image img {
   width: 100%;
   height: 100%;
-  object-fit: fill;
+  object-fit: cover;
 }
 
 .project-info {
