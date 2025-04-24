@@ -218,7 +218,7 @@
           <h3>Our Services</h3>
           <ul>
             <li v-for="(service, index) in services" :key="index">
-              <a href="#">{{ service.title }}</a>
+              <a @click.prevent="openServiceModal(index)" href="#">{{ service.title }}</a>
             </li>
           </ul>
         </div>
@@ -353,7 +353,7 @@ export default {
         {
           title: "Balcony Waterproofing",
           description: "This commercial building required comprehensive balcony waterproofing with membrane application and terrace finishing with patio slabs for durability and aesthetics.",
-          image: './images/service1/service.jpg'
+          image: './images/service3/service4.jpg'
         },
         {
           title: "Roof Waterproofing",
@@ -363,7 +363,7 @@ export default {
         {
           title: "Basement Waterproofing",
           description: "Complete basement waterproofing with membrane application to protect this industrial facility from moisture and water damage.",
-          image: './images/service1/service.jpg'
+          image: './images/service2/service2.jpg'
         }
       ],
 
@@ -634,8 +634,6 @@ export default {
 </script>
 
 <style scoped>
-
-
 * {
   margin: 0;
   padding: 0;
@@ -844,7 +842,8 @@ nav ul li a.active {
 .service-image img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: cover
+;
 }
 
 .service-content {
@@ -1070,7 +1069,7 @@ nav ul li a.active {
 .project-image img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: fill;
 }
 
 .project-info {
