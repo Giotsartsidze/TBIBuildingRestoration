@@ -21,6 +21,12 @@
 
   <!-- Hero Section -->
   <section class="hero" id="home">
+    <div class="video-background">
+      <video autoplay loop muted playsinline>
+        <source src="/avto.mp4" type="video/mp4">
+      </video>
+      <div class="overlay"></div>
+    </div>
     <div class="container">
       <div class="hero-content">
         <h1>YOUR BUILDING'S BEST SHIELD</h1>
@@ -645,13 +651,37 @@ nav ul li a.active {
 
 /* Hero Section */
 .hero {
-  background: linear-gradient(rgba(42, 60, 130, 0.85), rgba(42, 60, 130, 0.85)), url('/images/service1/service.jpg')  center/cover no-repeat;
+  position: relative;
   height: 80vh;
   display: flex;
   align-items: center;
   text-align: center;
   color: var(--white);
   margin-top: 100px;
+  overflow: hidden;
+}
+
+.video-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+}
+
+.video-background video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.video-background .overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
 }
 
 .hero-content {
@@ -667,6 +697,7 @@ nav ul li a.active {
 .hero p {
   font-size: 1.2rem;
   margin-bottom: 30px;
+  color: var(--light-gray);
 }
 
 .cta-button {
