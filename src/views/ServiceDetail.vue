@@ -5,7 +5,7 @@
         <div class="header-content">
           <div class="logo">
             <router-link to="/">
-              <img src="/public/images/logo.png" alt="TBI Building Restoration Logo">
+              <img src="/images/logo.png" alt="TBI Building Restoration Logo">
             </router-link>
           </div>
           <button class="mobile-nav-toggle" @click="toggleMobileNav">
@@ -15,6 +15,7 @@
             <ul>
               <li><router-link to="/">Home</router-link></li>
               <li><router-link to="/#about">About</router-link></li>
+              <li><router-link to="/#projects">Projects</router-link></li>
               <li><router-link to="/#services">Services</router-link></li>
               <li><router-link to="/#contact">Contact</router-link></li>
             </ul>
@@ -41,20 +42,8 @@
         <div class="service-content">
           <div class="service-description" v-html="service.description"></div>
 
-          <div class="service-gallery">
-            <div class="gallery-main">
-              <img :src="service.gallery[currentGalleryIndex]" :alt="service.title">
-            </div>
-            <div class="gallery-thumbnails">
-              <div
-                  v-for="(image, index) in service.gallery"
-                  :key="index"
-                  class="gallery-thumbnail"
-                  :class="{ active: currentGalleryIndex === index }"
-                  @click="currentGalleryIndex = index">
-                <img :src="image" :alt="`${service.title} - Image ${index + 1}`">
-              </div>
-            </div>
+          <div class="service-image">
+            <img :src="service.gallery[0]" :alt="service.title" class="main-service-image">
           </div>
 
           <div class="other-services">
@@ -88,7 +77,12 @@
             <h3>About TBI</h3>
             <p>TBI Building Restoration Inc. provides expert waterproofing and restoration services for commercial and industrial properties. We take pride in quality workmanship, great customer service, and competitive prices.</p>
             <div class="social-links">
-              <a href="#" v-for="(social, index) in socialLinks" :key="index"><i :class="social.icon"></i></a>
+              <a v-for="(social, index) in socialLinks"
+                 :key="index"
+                 @click="goToSocialLink(social.url)"
+                 href="javascript:void(0)">
+                <i :class="social.icon"></i>
+              </a>
             </div>
           </div>
 
@@ -139,7 +133,6 @@ export default {
   data() {
     return {
       mobileNavActive: false,
-      currentGalleryIndex: 0,
       services: [
         {
           id: 0,
@@ -369,10 +362,10 @@ export default {
         },
       ],
       socialLinks: [
-        { icon: "fab fa-facebook-f" },
-        { icon: "fab fa-twitter" },
-        { icon: "fab fa-linkedin-in" },
-        { icon: "fab fa-instagram" }
+        { icon: "fab fa-facebook-f" , url : "https://www.facebook.com/profile.php?id=61575634956799"},
+        // { icon: "fab fa-twitter" },
+        { icon: "fab fa-linkedin-in" , url :"https://www.linkedin.com/company/tbi-building-restoration-inc/about/?viewAsMember=true"},
+        // { icon: "fab fa-instagram" }
       ],
       contactInfo: [
         { icon: "fas fa-phone", text: "647-997-5112" },
@@ -393,7 +386,12 @@ export default {
   methods: {
     toggleMobileNav() {
       this.mobileNavActive = !this.mobileNavActive;
-    }
+    },
+    goToSocialLink(url) {
+      if (url) {
+        window.open(url, '_blank');
+      }
+    },
   },
   mounted() {
     // Scroll to top when page loads
@@ -496,59 +494,77 @@ nav ul li a:hover {
   flex-direction: column;
   gap: 40px;
 }
-
-.service-description p {
+.service-description{
   line-height: 1.6;
+}
+/* Fix 1: Use >>> or ::v-deep to target elements inside v-html content when using scoped styles */
+.service-description >>> h3,
+.service-description :deep() h3 {
+  font-size: 2rem;
+  color: var(--primary-blue);
+  margin-bottom: 20px;
+}
+
+.service-description >>> h4,
+.service-description :deep() h4 {
+  font-size: 1.5rem;
+  color: var(--primary-blue);
+  margin: 25px 0 15px;
+
+}
+
+.service-description >>> ul,
+.service-description :deep() ul {
+  margin-left: 20px;
+  margin-bottom: 20px;
+}
+
+.service-description >>> li,
+.service-description :deep() li {
+  margin-bottom: 10px;
+  line-height: 1.6;
+}
+
+/* Fix 2: Alternative approach - remove the "scoped" attribute from your style tag
+   and update the class names to be more specific to avoid conflicts */
+.service-detail-page .service-description h3 {
+  font-size: 2rem;
+  color: var(--primary-blue);
+  margin-bottom: 20px;
+}
+
+.service-detail-page .service-description h4 {
+  font-size: 1.5rem;
+  color: var(--primary-blue);
+  margin: 25px 0 15px;
+}
+
+/* Fix existing paragraph styles */
+.service-description p {
+  line-height: 1.6; /* Changed from 2.6 which seems excessive */
   color: var(--dark-gray);
   font-size: 1.1rem;
-}
-
-.service-gallery {
-  margin: 30px 0;
-}
-
-.gallery-main {
-  height: 500px;
-  overflow: hidden;
-  border-radius: 10px;
   margin-bottom: 15px;
 }
 
-.gallery-main img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-.gallery-thumbnails {
-  display: flex;
-  gap: 10px;
-  overflow-x: auto;
-}
-
-.gallery-thumbnail {
-  width: 100px;
-  height: 70px;
-  border-radius: 5px;
+/* Service Image - Updated to show single image */
+.service-image {
+  margin: 30px 0;
+  border-radius: 10px;
   overflow: hidden;
-  cursor: pointer;
-  opacity: 0.7;
-  transition: opacity 0.3s, transform 0.3s;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
-.gallery-thumbnail:hover {
-  transform: translateY(-5px);
-}
-
-.gallery-thumbnail.active {
-  opacity: 1;
-  border: 3px solid var(--secondary-orange);
-}
-
-.gallery-thumbnail img {
+.main-service-image {
   width: 100%;
-  height: 100%;
-  object-fit: contain;
+  height: 500px;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.5s;
+}
+
+.main-service-image:hover {
+  transform: scale(1.02);
 }
 
 /* Other Services Section */
@@ -582,7 +598,7 @@ nav ul li a:hover {
 .other-service-card img {
   width: 100%;
   height: 150px;
-  object-fit: contain;
+  object-fit: cover;
 }
 
 .other-service-card h4 {
@@ -722,8 +738,8 @@ footer {
 
 /* Responsive styles */
 @media (max-width: 992px) {
-  .gallery-main {
-    height: 350px;
+  .main-service-image {
+    height: 400px;
   }
 }
 
@@ -761,7 +777,13 @@ footer {
     font-size: 2rem;
   }
 
-  .gallery-main {
+  .main-service-image {
+    height: 300px;
+  }
+}
+
+@media (max-width: 576px) {
+  .main-service-image {
     height: 250px;
   }
 }

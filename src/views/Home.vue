@@ -3,7 +3,7 @@
     <div class="container">
       <div class="header-content">
         <div class="logo">
-          <img src="/public/images/logo.png" alt="TBI Building Restoration Logo">
+          <img src="/images/logo.png" alt="TBI Building Restoration Logo">
         </div>
         <button class="mobile-nav-toggle" @click="toggleMobileNav">
           <i :class="['fas', mobileNavActive ? 'fa-times' : 'fa-bars']"></i>
@@ -85,6 +85,7 @@
   </section>
 
   <!-- Service Modal Popup -->
+  <<!-- Service Modal Popup -->
   <div class="modal-overlay" v-if="showServiceModal" @click.self="closeServiceModal">
     <div class="modal-container">
       <div class="modal-header">
@@ -96,28 +97,11 @@
           <p>{{ selectedService.fullDescription || selectedService.description }}</p>
         </div>
 
-        <div class="modal-gallery">
-          <div class="gallery-nav">
-            <button @click="prevGalleryImage" class="gallery-btn"><i class="fas fa-chevron-left"></i></button>
-            <span>{{ currentGalleryIndex + 1 }} / {{ selectedService.gallery ? selectedService.gallery.length : 0 }}</span>
-            <button @click="nextGalleryImage" class="gallery-btn"><i class="fas fa-chevron-right"></i></button>
-          </div>
-          <div class="gallery-image-container">
-            <img v-if="selectedService.gallery && selectedService.gallery.length > 0"
-                 :src="selectedService.gallery[currentGalleryIndex]"
-                 :alt="`${selectedService.title} - Image ${currentGalleryIndex + 1}`"
-                 class="gallery-image">
-          </div>
-          <div class="gallery-thumbnails">
-            <div
-                v-for="(image, index) in selectedService.gallery"
-                :key="index"
-                class="gallery-thumbnail"
-                :class="{ active: currentGalleryIndex === index }"
-                @click="currentGalleryIndex = index">
-              <img :src="image" :alt="`Thumbnail ${index + 1}`">
-            </div>
-          </div>
+        <div class="modal-image">
+          <img v-if="selectedService.gallery && selectedService.gallery.length > 0"
+               :src="selectedService.gallery[0]"
+               :alt="selectedService.title"
+               class="service-feature-image">
         </div>
       </div>
       <div class="modal-footer">
@@ -125,6 +109,30 @@
       </div>
     </div>
   </div>
+
+  <!-- Add this section after the services section and before testimonials section -->
+  <section class="projects" id="projects">
+    <div class="container">
+      <div class="section-title">
+        <h2>OUR PROJECTS</h2>
+        <p>Explore our completed waterproofing and restoration projects</p>
+      </div>
+
+      <div class="projects-testimonial-slider" @mouseenter="pauseProjectSlider" @mouseleave="resumeProjectSlider">
+        <div v-for="(image, index) in allProjectImages" :key="index"
+             class="project-slide" :class="{ active: currentProjectIndex === index }">
+          <div class="project-image-container">
+            <img :src="image" :alt="`Project Image ${index + 1}`" class="project-image">
+          </div>
+        </div>
+
+        <div class="slider-controls">
+          <button @click="prevProjectSlide"><i class="fas fa-chevron-left"></i></button>
+          <button @click="nextProjectSlide"><i class="fas fa-chevron-right"></i></button>
+        </div>
+      </div>
+    </div>
+  </section>
 
 
   <!-- Testimonials Section -->
@@ -196,7 +204,12 @@
           <h3>About TBI</h3>
           <p>TBI Building Restoration Inc. provides expert waterproofing and restoration services for commercial and industrial properties. We take pride in quality workmanship, great customer service, and competitive prices.</p>
           <div class="social-links">
-            <a href="#" v-for="(social, index) in socialLinks" :key="index"><i :class="social.icon"></i></a>
+            <a v-for="(social, index) in socialLinks"
+               :key="index"
+               @click="goToSocialLink(social.url)"
+               href="javascript:void(0)">
+              <i :class="social.icon"></i>
+            </a>
           </div>
         </div>
 
@@ -255,12 +268,17 @@ export default {
         message: ''
       },
       currentYear: new Date().getFullYear(),
+      currentProjectIndex: 0,
+      projectSlideInterval: null,
+      itemsPerView: 3, // Adjust based on screen size
+      allProjectImages: [],
 
       // Navigation items
       navItems: [
         { href: "#home", text: "Home", id: "home" },
         { href: "#about", text: "About", id: "about" },
         { href: "#services", text: "Services", id: "services" },
+        { href: "#projects", text: "Projects", id: "projects" },
         { href: "#contact", text: "Contact", id: "contact" }
       ],
       showServiceModal: false,
@@ -390,10 +408,10 @@ export default {
 
       // Social links
       socialLinks: [
-        { icon: "fab fa-facebook-f" },
-        { icon: "fab fa-twitter" },
-        { icon: "fab fa-linkedin-in" },
-        { icon: "fab fa-instagram" }
+        { icon: "fab fa-facebook-f" , url : "https://www.facebook.com/profile.php?id=61575634956799"},
+        // { icon: "fab fa-twitter" },
+        { icon: "fab fa-linkedin-in" , url :"https://www.linkedin.com/company/tbi-building-restoration-inc/about/?viewAsMember=true"},
+        // { icon: "fab fa-instagram" }
       ],
 
       // Contact info for footer
@@ -409,6 +427,14 @@ export default {
   mounted() {
     // Start the sliders
     this.startTestimonialSlider();
+    this.initProjectGallery();
+
+    // Add event listener for slider interaction
+    const projectSlider = document.querySelector('.projects-slider');
+    if (projectSlider) {
+      projectSlider.addEventListener('mouseenter', this.pauseProjectSlider);
+      projectSlider.addEventListener('mouseleave', this.resumeProjectSlider);
+    }
 
     // Add scroll event listener for scroll to top button
     window.addEventListener('scroll', this.handleScroll);
@@ -423,6 +449,11 @@ export default {
   beforeUnmount() {
     // Clear intervals when component is destroyed
     this.clearTestimonialInterval();
+    // Clear project interval
+    this.clearProjectInterval();
+
+    // Remove resize event listener
+    window.removeEventListener('resize', this.updateItemsPerView);
 
     // Remove scroll event listener
     window.removeEventListener('scroll', this.handleScroll);
@@ -559,6 +590,87 @@ export default {
       }
     },
 
+
+    // Initialize project gallery by collecting all service images
+    initProjectGallery() {
+      // Collect all images from service galleries
+      this.services.forEach(service => {
+        if (service.gallery && service.gallery.length) {
+          this.allProjectImages = [...this.allProjectImages, ...service.gallery];
+        }
+      });
+
+      // Shuffle array to display different images
+      this.shuffleArray(this.allProjectImages);
+
+      // Set initial project index
+      this.currentProjectIndex = 0;
+
+      // Start the project slider
+      this.startProjectSlider();
+    },
+
+
+    // Update the number of items to show based on screen width
+    updateItemsPerView() {
+      if (window.innerWidth < 768) {
+        this.itemsPerView = 1;
+      } else if (window.innerWidth < 992) {
+        this.itemsPerView = 2;
+      } else {
+        this.itemsPerView = 3;
+      }
+    },
+
+    // Shuffle array function (Fisher-Yates algorithm)
+    shuffleArray(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    },
+
+    // Project slider controls
+    startProjectSlider() {
+      this.projectSlideInterval = setInterval(() => {
+        this.nextProjectSlide();
+      }, 5000);
+    },
+
+    clearProjectInterval() {
+      if (this.projectSlideInterval) {
+        clearInterval(this.projectSlideInterval);
+      }
+    },
+
+    pauseProjectSlider() {
+      this.clearProjectInterval();
+    },
+
+    resumeProjectSlider() {
+      this.startProjectSlider();
+    },
+
+    nextProjectSlide() {
+      this.currentProjectIndex = (this.currentProjectIndex + 1) % this.allProjectImages.length;
+    },
+
+    prevProjectSlide() {
+      this.currentProjectIndex = (this.currentProjectIndex - 1 + this.allProjectImages.length) % this.allProjectImages.length;
+    },
+
+    goToProjectSlide(index) {
+      this.currentProjectIndex = index;
+    },
+
+    // Navigate to social media links
+    goToSocialLink(url) {
+      if (url) {
+        window.open(url, '_blank');
+      }
+    },
+
     // Form submission
     submitForm() {
       // Here you would typically send the form data to your server
@@ -576,7 +688,10 @@ export default {
       };
     }
   }
+
 };
+
+
 </script>
 
 <style scoped>
@@ -814,7 +929,7 @@ nav ul li a.active {
 .service-image img {
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;
 ;
 }
 
@@ -949,72 +1064,32 @@ nav ul li a.active {
   line-height: 1.6;
   font-size: 1rem;
 }
-
-.modal-gallery {
-  display: flex;
-  flex-direction: column;
-}
-
-.gallery-nav {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 15px;
-}
-
-.gallery-btn {
-  background-color: var(--primary-blue);
-  color: white;
-  border: none;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.gallery-btn:hover {
-  background-color: var(--secondary-orange);
-}
-
-.gallery-image-container {
+.modal-image {
   width: 100%;
-  height: 400px;
-  overflow: hidden;
+  margin: 20px 0;
   border-radius: 8px;
-  margin-bottom: 15px;
-}
-
-.gallery-image {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  transition: transform 0.3s;
-}
-
-.gallery-thumbnails {
-  display: flex;
-  gap: 10px;
-  overflow-x: auto;
-  padding-bottom: 10px;
-}
-
-.gallery-thumbnail {
-  width: 80px;
-  height: 60px;
-  border-radius: 4px;
   overflow: hidden;
-  cursor: pointer;
-  opacity: 0.7;
-  transition: opacity 0.3s;
 }
 
-.gallery-thumbnail.active {
-  opacity: 1;
-  box-shadow: 0 0 0 2px var(--secondary-orange);
+.service-feature-image {
+  width: 100%;
+  height: auto;
+  max-height: 400px;
+  object-fit: cover;
+  border-radius: 8px;
+  transition: transform 0.3s;
+  display: block;
+}
+
+.service-feature-image:hover {
+  transform: scale(1.02);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .service-feature-image {
+    max-height: 300px;
+  }
 }
 
 .gallery-thumbnail img {
@@ -1038,6 +1113,168 @@ nav ul li a.active {
   .gallery-thumbnail {
     width: 60px;
     height: 45px;
+  }
+}
+
+/* Projects Section Styles */
+.projects {
+  padding: 80px 0;
+  background-color: var(--white);
+}
+
+/* Projects Section with Testimonial-Style Slider */
+.projects {
+  padding: 80px 0;
+  background-color: var(--white);
+}
+
+.projects-testimonial-slider {
+  margin-top: 50px;
+  position: relative;
+}
+
+.project-slide {
+  display: none;
+}
+
+.project-slide.active {
+  display: block;
+  text-align: center;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.project-image-container {
+  background-color: var(--white);
+  padding: 10px;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  height: 500px;
+}
+
+.project-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 5px;
+  transition: transform 0.3s ease;
+}
+
+.project-image:hover {
+  transform: scale(1.02);
+}
+
+.slider-controls {
+  display: flex;
+  justify-content: center;
+  margin-top: 30px;
+}
+
+.slider-controls button {
+  background-color: var(--primary-blue);
+  color: var(--white);
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  margin: 0 10px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.slider-controls button:hover {
+  background-color: var(--secondary-orange);
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .project-image-container {
+    height: 350px;
+  }
+}
+
+.project-slide {
+  flex: 0 0 calc(100% / 3); /* Default for desktop */
+  padding: 0 10px;
+  box-sizing: border-box;
+}
+
+.project-image {
+  height: 100%;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.project-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.project-image:hover img {
+  transform: scale(1.05);
+}
+
+.slider-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 30px;
+}
+
+.slider-indicators span {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: #ddd;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.slider-indicators span.active {
+  background-color: var(--secondary-orange);
+}
+
+/* Update social links to be clickable */
+.social-links a {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 40px;
+  height: 40px;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--white);
+  border-radius: 50%;
+  text-decoration: none;
+  transition: background-color 0.3s, transform 0.3s;
+  cursor: pointer;
+}
+
+.social-links a:hover {
+  background-color: var(--secondary-orange);
+  transform: translateY(-3px);
+}
+
+/* Responsive styles for projects slider */
+@media (max-width: 992px) {
+  .project-slide {
+    flex: 0 0 50%; /* Show 2 items on tablets */
+  }
+}
+
+@media (max-width: 768px) {
+  .project-slide {
+    flex: 0 0 100%; /* Show 1 item on mobile */
+  }
+
+  .project-image {
+    height: 100%;
   }
 }
 
