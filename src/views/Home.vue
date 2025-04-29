@@ -418,7 +418,7 @@ export default {
       contactInfo: [
         { icon: "fas fa-phone", text: "647-997-5112" },
         { icon: "fas fa-phone", text: "416-871-4194" },
-        { icon: "fas fa-envelope", text: "tbibuildingrestoration@gmail.com" },
+        { icon: "fas fa-envelope", text: "avtandil@tbicontractors.ca" },
         { icon: "fas fa-map-marker-alt", text: "Canyon Ave, Toronto, ON M3H4Y2" }
       ]
     };
